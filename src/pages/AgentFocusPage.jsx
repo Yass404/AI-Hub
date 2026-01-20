@@ -80,6 +80,7 @@ export default function AgentFocusPage() {
 function MissionCockpit({ prompt, agent, index }) {
     const [subject, setSubject] = useState('');
     const [copied, setCopied] = useState(false);
+    const [launchUnlocked, setLaunchUnlocked] = useState(false);
     const [showPrompt, setShowPrompt] = useState(false);
 
     // Dynamic Prompt Generation
@@ -97,6 +98,7 @@ function MissionCockpit({ prompt, agent, index }) {
     const handleCopy = () => {
         navigator.clipboard.writeText(dynamicPromptText);
         setCopied(true);
+        setLaunchUnlocked(true);
         setTimeout(() => setCopied(false), 2000);
     };
 
@@ -137,7 +139,10 @@ function MissionCockpit({ prompt, agent, index }) {
                         <input
                             type="text"
                             value={subject}
-                            onChange={(e) => setSubject(e.target.value)}
+                            onChange={(e) => {
+                                setSubject(e.target.value);
+                                setLaunchUnlocked(false);
+                            }}
                             placeholder="Ex : Soirée de Gala..."
                             className="w-full text-2xl md:text-3xl font-bold text-[#00353F] placeholder-[#00353F]/15 bg-transparent border-0 border-b-2 border-[#00353F]/10 px-0 py-4 focus:ring-0 focus:border-[#007A8C] transition-all"
                         />
@@ -242,28 +247,28 @@ function MissionCockpit({ prompt, agent, index }) {
 
                     <div className="flex justify-center">
                         <a
-                            href={copied ? agent.externalLink : '#'}
-                            target={copied ? "_blank" : "_self"}
-                            rel={copied ? "noopener noreferrer" : ""}
-                            onClick={(e) => !copied && e.preventDefault()}
+                            href={launchUnlocked ? agent.externalLink : '#'}
+                            target={launchUnlocked ? "_blank" : "_self"}
+                            rel={launchUnlocked ? "noopener noreferrer" : ""}
+                            onClick={(e) => !launchUnlocked && e.preventDefault()}
                             className={`
                 group relative flex items-center gap-4 pl-8 pr-10 py-5 rounded-2xl transition-all duration-500 w-full md:w-auto justify-center md:justify-start
-                ${copied
+                ${launchUnlocked
                                     ? 'bg-[#007A8C] text-white shadow-xl shadow-[#007A8C]/30 scale-105 cursor-pointer'
                                     : 'bg-[#F0EEE9] text-[#00353F]/40 cursor-not-allowed hover:bg-[#E5E2DC] pointer-events-none'
                                 }
               `}
                         >
-                            <div className={`p-2 rounded-xl ${copied ? 'bg-white/20' : 'bg-[#00353F]/5'}`}>
+                            <div className={`p-2 rounded-xl ${launchUnlocked ? 'bg-white/20' : 'bg-[#00353F]/5'}`}>
                                 <agent.icon className="w-6 h-6" />
                             </div>
                             <div className="text-left">
-                                <p className={`text-xs font-bold uppercase tracking-wider ${copied ? 'text-white/60' : 'text-inherit'}`}>Dernière étape</p>
+                                <p className={`text-xs font-bold uppercase tracking-wider ${launchUnlocked ? 'text-white/60' : 'text-inherit'}`}>Dernière étape</p>
                                 <p className="text-lg font-bold">Lancer {agent.name}</p>
                             </div>
-                            {copied && <ExternalLink className="w-5 h-5 ml-2 animate-pulse" />}
+                            {launchUnlocked && <ExternalLink className="w-5 h-5 ml-2 animate-pulse" />}
 
-                            {!copied && (
+                            {!launchUnlocked && (
                                 <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#00353F] text-white text-xs px-3 py-1.5 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                                     Copiez la formule d'abord !
                                     <div className="absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-2 h-2 bg-[#00353F] rotate-45" />

@@ -13,6 +13,10 @@ import {
   Newspaper,
   BookOpen,
   Sparkles,
+  TrendingUp,
+  Search,
+  Calendar,
+  Database,
 } from 'lucide-react';
 
 export const departments = {
@@ -23,11 +27,24 @@ export const departments = {
     icon: PenTool,
     color: 'indigo',
     description: 'Trois agents spécialisés pour trois types de contenus. Chaque prompt génère une réponse découpée, prête à copier-coller dans les champs du CRM.',
+    sections: [
+      {
+        title: "Studio de Rédaction",
+        category: "production",
+        description: "Vos experts pour la création de contenus finaux."
+      },
+      {
+        title: "Recherche & Idée",
+        category: "research",
+        description: "Trouvez vos prochains sujets à fort potentiel."
+      }
+    ],
     agents: [
       {
         id: 'agent-guide',
         name: 'Agent Guide',
         badge: 'Contenus Longs',
+        category: 'production',
         description: 'Entraîné sur les guides ABC Salles. Pour les articles de fond, conseils et organisations d\'événements.',
         icon: BookOpen,
         externalLink: 'https://gemini.google.com/gem/1q4NMosRVWc3B1kHEdFhVN6AT3b4aFryx?usp=sharing',
@@ -37,6 +54,7 @@ export const departments = {
         id: 'agent-inspiration',
         name: 'Agent Inspiration',
         badge: 'Viralité',
+        category: 'production',
         description: 'Entraîné sur les articles d\'inspiration. Pour les sélections de lieux, Tops et tendances.',
         icon: Sparkles,
         externalLink: 'https://gemini.google.com/gem/1NTckf4RdYtA8jso6nZdIY1M6lvYeY5sy?usp=sharing',
@@ -46,10 +64,56 @@ export const departments = {
         id: 'agent-actualite',
         name: 'Agent Actualité',
         badge: 'Magazine',
+        category: 'production',
         description: 'Entraîné sur les actualités sectorielles. Pour les réglementations, brèves et news courtes.',
         icon: Newspaper,
         externalLink: 'https://gemini.google.com/gem/1omQ3pf8ge7D8GBrVqcWJTCE_9fE4RFTW?usp=sharing',
         color: 'rose',
+      },
+      // New Research Agents
+      {
+        id: 'agent-tendances',
+        name: 'Agent Tendances',
+        badge: 'Veille',
+        category: 'research',
+        comingSoon: true,
+        description: 'Détecte les sujets chauds du moment dans l\'événementiel et le mariage pour ne jamais manquer une opportunité de trafic.',
+        icon: TrendingUp,
+        externalLink: 'https://chat.openai.com',
+        color: 'violet',
+      },
+      {
+        id: 'agent-mots-cles',
+        name: 'Agent Mots-Clés',
+        badge: 'SEO Sémantique',
+        category: 'research',
+        comingSoon: true,
+        description: 'Brainstorme des champs lexicaux et des sujets connexes pour enrichir votre planning éditorial.',
+        icon: Search,
+        externalLink: 'https://chat.openai.com',
+        color: 'blue',
+      },
+      {
+        id: 'agent-calendrier',
+        name: 'Agent Calendrier',
+        badge: 'Planning',
+        category: 'research',
+        comingSoon: true,
+        description: 'Identifie les marronniers et les meilleures dates de publication pour maximiser l\'impact de vos contenus.',
+        icon: Calendar,
+        externalLink: 'https://chat.openai.com',
+        color: 'emerald',
+      },
+      {
+        id: 'agent-sources',
+        name: 'Agent Sourcing',
+        badge: 'Data & Stats',
+        category: 'research',
+        comingSoon: true,
+        description: 'Trouve des statistiques fiables et des sources d\'autorité pour crédibiliser vos articles de fond.',
+        icon: Database,
+        externalLink: 'https://chat.openai.com',
+        color: 'cyan',
       },
     ],
     prompts: [
@@ -153,6 +217,39 @@ IMPORTANT : Enrichis ton texte pour éviter le superficiel !
 
 Base-toi sur la richesse et la fluidité des articles du fichier Actualites.json.`,
         tip: 'Génère un article type magazine, riche et bien structuré, idéal pour le SEO et l\'engagement lecteur.',
+      },
+      // New Prompts for Research Agents
+      {
+        id: 'prompt-redaction-4',
+        agentId: 'agent-tendances',
+        title: 'Trouver 5 Sujets "Tendance"',
+        objective: 'Idéation',
+        prompt: `Tu es un expert en veille sectorielle événementielle.
+Je travaille pour ABC Salles (recherche de lieux d'événements : mariage, entreprise, anniversaire).
+
+Donne-moi 5 idées de sujets d'articles "Tendance" pour le blog, basés sur : [SAISON ou THÈME - ex: Été 2026, Éco-responsabilité, Séminaire vert].
+
+Pour chaque idée :
+1. Titre accrocheur
+2. Pourquoi c'est tendance maintenant (l'angle)
+3. Le mot-clé principal visé`,
+        tip: 'Idéal pour remplir votre calendrier éditorial quand vous manquez d\'inspiration.',
+      },
+      {
+        id: 'prompt-redaction-5',
+        agentId: 'agent-mots-cles',
+        title: 'Cluster Sémantique (Brainstorm)',
+        objective: 'SEO',
+        prompt: `Tu es un expert SEO sémantique.
+Je veux écrire sur : [SUJET PRINCIPAL - ex: Mariage Champêtre].
+
+Donne-moi :
+1. 10 mots-clés de "longue traîne" (questions que les gens posent vraiment).
+2. 5 sujets connexes pour faire des liens internes (maillage).
+3. Les entités nommées à inclure (marques, lieux, types de produits associés).
+
+Ton objectif est de m'aider à couvrir tout le champ sémantique pour être 1er sur Google.`,
+        tip: 'Utilisez cette liste pour enrichir vos articles et montrer à Google que vous maîtrisez le sujet à 360°.',
       },
     ],
   },

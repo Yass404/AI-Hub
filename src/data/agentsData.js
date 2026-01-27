@@ -76,7 +76,7 @@ export const departments = {
         name: 'Agent Tendances',
         badge: 'Veille',
         category: 'research',
-        comingSoon: true,
+        // comingSoon removed to enable access
         description: 'Détecte les sujets chauds du moment dans l\'événementiel et le mariage pour ne jamais manquer une opportunité de trafic.',
         icon: TrendingUp,
         externalLink: 'https://chat.openai.com',
@@ -224,6 +224,7 @@ Base-toi sur la richesse et la fluidité des articles du fichier Actualites.json
         agentId: 'agent-tendances',
         title: 'Trouver 5 Sujets "Tendance"',
         objective: 'Idéation',
+        customAction: 'FETCH_TRENDS', // Trigger API call instead of Copy
         prompt: `Tu es un expert en veille sectorielle événementielle.
 Je travaille pour ABC Salles (recherche de lieux d'événements : mariage, entreprise, anniversaire).
 

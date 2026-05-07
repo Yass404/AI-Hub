@@ -1,106 +1,88 @@
+// Vercel Function — fetches event/wedding trends via Gemini with Google Search grounding.
+// Migrated from Perplexity to Gemini (May 2026).
 
-export default async function handler(req, res) {
-    // Set CORS headers allowing access from any origin (or restrict to your domain)
-    res.setHeader('Access-Control-Allow-Credentials', true);
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-    res.setHeader(
-        'Access-Control-Allow-Headers',
-        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-    );
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
 
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
-    }
+const SYSTEM_PROMPT = `Tu es un expert en veille de tendances pour ABC Salles, leader français des salles de réception et événementiel.
 
-    try {
-        const topic = req.query.topic || "mariage et événementiel";
+Tu utilises Google Search pour identifier les tendances actuelles.
 
-        // Check for API Key
-        if (!process.env.PERPLEXITY_API_KEY) {
-            console.error("PERPLEXITY_API_KEY is missing in environment variables.");
-            // Fallback to mock data if key is missing (safe fail)
-            return res.status(500).json({
-                error: "Configuration Error",
-                details: "API Key is missing on server.",
-                fallback: true,
-                data: [
-                    {
-                        id: 1,
-                        title: "Configuration Requise (Vercel)",
-                        description: "La clé API Perplexity n'est pas configurée dans les paramètres Vercel.",
-                        keyword: "Config",
-                        category: "Système"
-                    }
-                ]
-            });
-        }
+Tu retournes UNIQUEMENT un objet JSON valide contenant 20 tendances actuelles (ni plus, ni moins) sur le sujet demandé.
 
-        const response = await fetch('https://api.perplexity.ai/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                model: 'sonar-pro',
-                messages: [
-                    {
-                        role: 'system',
-                        content: `Tu es un expert en veille de tendances.
-Ton objectif est de retourner UNIQUEMENT un objet JSON valide contenant 20 tendances actuelles (ni plus, ni moins) sur le sujet demandé.
-Le format doit être STRICTEMENT celui-ci :
+Format STRICT :
 {
   "data": [
     {
       "id": 1,
       "title": "Titre court de la tendance",
-      "description": "Description détaillée de la tendance, pourquoi elle monte, et comment l'appliquer.",
+      "description": "Description détaillée : pourquoi elle monte, comment l'appliquer.",
       "keyword": "mot-clé principal",
       "category": "Catégorie pertinente"
     }
   ]
 }
-Ne mets PAS de balises markdown. Renvoie juste le JSON brut.`
-                    },
-                    {
-                        role: 'user',
-                        content: `Quelles sont les dernières tendances 2025/2026 sur le sujet : "${topic}" ? Donne-moi des idées fraîches, innovantes et variées.`
-                    }
-                ],
-                temperature: 0.2
-            })
-        });
 
-        if (!response.ok) {
-            const error = await response.text();
-            throw new Error(`Perplexity API Error: ${response.status} - ${error}`);
-        }
+Pas de balises markdown. Juste le JSON brut.`
 
-        const data = await response.json();
-        let content = data.choices[0].message.content;
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Credentials', true)
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
 
-        // Clean markdown if present
-        content = content.replace(/```json/g, '').replace(/```/g, '').trim();
+  if (req.method === 'OPTIONS') return res.status(200).end()
 
-        res.status(200).json(JSON.parse(content));
+  const fallback = (status, error, details) => res.status(status).json({
+    error,
+    details,
+    fallback: true,
+    data: [{
+      id: 1,
+      title: 'Mode Secours (Erreur API)',
+      description: details || 'Impossible de joindre Gemini. Vérifiez les logs Vercel.',
+      keyword: 'Erreur',
+      category: 'Système'
+    }]
+  })
 
-    } catch (error) {
-        console.error('Error fetching trends:', error);
-        res.status(500).json({
-            error: "Failed to fetch trends",
-            details: error.message,
-            fallback: true,
-            data: [
-                {
-                    id: 1,
-                    title: "Mode Secours (Erreur API)",
-                    description: "Impossible de joindre Perplexity. Vérifiez les logs Vercel.",
-                    keyword: "Erreur",
-                    category: "Système"
-                }
-            ]
-        });
+  if (!process.env.GEMINI_LLM_API_KEY) {
+    return fallback(500, 'Configuration Error', 'GEMINI_LLM_API_KEY missing on server')
+  }
+
+  try {
+    const topic = req.query.topic || 'mariage et événementiel'
+    const userMessage = `Quelles sont les dernières tendances 2025/2026 sur le sujet : "${topic}" ? Donne-moi des idées fraîches, innovantes et variées.`
+
+    const response = await fetch(`${GEMINI_API_URL}?key=${process.env.GEMINI_LLM_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: [{ role: 'user', parts: [{ text: userMessage }] }],
+        tools: [{ googleSearch: {} }],
+        generationConfig: { temperature: 0.3 }
+      })
+    })
+
+    if (!response.ok) {
+      const errText = await response.text()
+      console.error('Gemini API error:', response.status, errText)
+      return fallback(502, 'Gemini API Error', `${response.status}: ${errText}`)
     }
+
+    const data = await response.json()
+    let content = data?.candidates?.[0]?.content?.parts?.[0]?.text
+    if (!content) return fallback(502, 'Empty response from Gemini', JSON.stringify(data).slice(0, 200))
+
+    content = content.replace(/```json/g, '').replace(/```/g, '').trim()
+
+    try {
+      return res.status(200).json(JSON.parse(content))
+    } catch {
+      return fallback(502, 'Invalid JSON from Gemini', content.slice(0, 200))
+    }
+  } catch (err) {
+    console.error('Error fetching trends:', err)
+    return fallback(500, 'Failed to fetch trends', err.message)
+  }
 }

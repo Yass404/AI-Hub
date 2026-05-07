@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ExternalLink, ArrowLeft, Copy, Check, Sparkles, Wand2, Eye, EyeOff } from 'lucide-react';
+import { ExternalLink, ArrowLeft, Copy, Check, Sparkles, Wand2, Eye, EyeOff, ImageIcon } from 'lucide-react';
 import { departments } from '../data/agentsData';
 
 export default function AgentFocusPage() {
@@ -79,6 +79,7 @@ export default function AgentFocusPage() {
 // "The Mission Cockpit" Component
 function MissionCockpit({ prompt, agent, index }) {
     const [subject, setSubject] = useState('');
+    const [articleText, setArticleText] = useState('');
     const [copied, setCopied] = useState(false);
     const [launchUnlocked, setLaunchUnlocked] = useState(false);
     const [showPrompt, setShowPrompt] = useState(false);
@@ -89,6 +90,7 @@ function MissionCockpit({ prompt, agent, index }) {
     const [error, setError] = useState(null);
 
     const isApiMode = prompt.customAction === 'FETCH_TRENDS';
+    const isPhotoMode = prompt.customAction === 'GENERATE_PHOTO_PROMPT';
 
     // Dynamic Prompt Generation
     const getDynamicPrompt = () => {
@@ -127,6 +129,37 @@ function MissionCockpit({ prompt, agent, index }) {
         }
     };
 
+    const handleGeneratePhotoPrompts = async () => {
+        setIsLoading(true);
+        setError(null);
+        setResults(null);
+        setLaunchUnlocked(false);
+
+        try {
+            const response = await fetch('/api/photo-prompt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    subject,
+                    articleText,
+                    agentType: prompt.agentTypeForApi || 'guide'
+                })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data?.error || `HTTP ${response.status}`);
+            if (!Array.isArray(data?.prompts) || data.prompts.length === 0) {
+                throw new Error('Aucun prompt généré');
+            }
+            setResults(data.prompts);
+            setLaunchUnlocked(true);
+        } catch (err) {
+            setError(`Erreur génération : ${err.message}`);
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -158,7 +191,7 @@ function MissionCockpit({ prompt, agent, index }) {
                 {/* SECTION 1: INPUT */}
                 <div className="relative group">
                     <label className="block text-sm font-bold text-[#00353F]/40 uppercase tracking-wider mb-4 pl-1">
-                        1. {isApiMode ? "Quel est votre thème ?" : "Définissez votre sujet"}
+                        1. {isApiMode ? "Quel est votre thème ?" : (isPhotoMode ? "Sujet de l'article" : "Définissez votre sujet")}
                     </label>
                     <div className="relative">
                         <input
@@ -189,9 +222,31 @@ function MissionCockpit({ prompt, agent, index }) {
                     </div>
                 </div>
 
+                {/* SECTION 1bis: ARTICLE TEXT (photo mode only) */}
+                {isPhotoMode && (
+                    <div className="relative group">
+                        <label className="block text-sm font-bold text-[#00353F]/40 uppercase tracking-wider mb-4 pl-1">
+                            2. Collez l'article rédigé (avec H2 / H3)
+                        </label>
+                        <textarea
+                            value={articleText}
+                            onChange={(e) => {
+                                setArticleText(e.target.value);
+                                setLaunchUnlocked(false);
+                            }}
+                            placeholder="Colle ici l'article complet rédigé via l'Agent Guide ci-dessus. Plus tu donnes de contexte (H2, exemples, vocabulaire culturel), meilleurs sont les prompts photo."
+                            rows={10}
+                            className="w-full text-base text-[#00353F] placeholder-[#00353F]/30 bg-[#FAFAFA] border-2 border-[#00353F]/10 rounded-xl p-4 focus:ring-0 focus:border-[#007A8C] transition-all resize-y"
+                        />
+                        <p className="text-xs text-[#00353F]/40 mt-2 pl-1">
+                            {articleText.length > 0 ? `${articleText.length} caractères` : 'Conseil : copie tout le contenu, du chapô à la FAQ.'}
+                        </p>
+                    </div>
+                )}
+
                 {/* SECTION 2: ACTION CARD (SEARCH or COPY) */}
                 <div>
-                    {!isApiMode && (
+                    {!isApiMode && !isPhotoMode && (
                         <div className="flex items-center justify-between mb-4 pl-1">
                             <label className="block text-sm font-bold text-[#00353F]/40 uppercase tracking-wider">
                                 2. Récupérez votre formule
@@ -212,38 +267,78 @@ function MissionCockpit({ prompt, agent, index }) {
                         </label>
                     )}
 
-                    <div className={`relative rounded-2xl p-1 transition-all duration-300 ${(subject || isApiMode) ? 'bg-gradient-to-r from-[#007A8C] via-[#22C55E] to-[#007A8C] p-[2px]' : 'bg-[#00353F]/5'}`}>
+                    {isPhotoMode && (
+                        <label className="block text-sm font-bold text-[#00353F]/40 uppercase tracking-wider mb-4 pl-1">
+                            3. Générer les prompts photo
+                        </label>
+                    )}
+
+                    {(() => {
+                        const photoReady = isPhotoMode && subject && articleText.trim().length > 50;
+                        const isActive = subject || isApiMode || photoReady;
+                        return (
+                    <div className={`relative rounded-2xl p-1 transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-[#007A8C] via-[#22C55E] to-[#007A8C] p-[2px]' : 'bg-[#00353F]/5'}`}>
                         <div className="bg-[#FAFAFA] rounded-xl p-8 md:p-10 flex flex-col items-center text-center relative overflow-hidden">
 
                             {/* Background Glow */}
-                            {(subject || isApiMode) && (
+                            {isActive && (
                                 <div className="absolute inset-0 bg-gradient-to-b from-[#007A8C]/5 to-transparent pointer-events-none" />
                             )}
 
                             {/* Icon */}
-                            <div className={`p-4 rounded-full mb-6 transition-all duration-500 ${(subject || isApiMode) ? 'bg-[#007A8C]/10 text-[#007A8C] scale-110' : 'bg-[#00353F]/5 text-[#00353F]/20'}`}>
-                                {isApiMode ? (isLoading ? <Sparkles className="w-8 h-8 animate-spin" /> : <Sparkles className="w-8 h-8" />) : (copied ? <Check className="w-8 h-8" /> : <Wand2 className="w-8 h-8" />)}
+                            <div className={`p-4 rounded-full mb-6 transition-all duration-500 ${isActive ? 'bg-[#007A8C]/10 text-[#007A8C] scale-110' : 'bg-[#00353F]/5 text-[#00353F]/20'}`}>
+                                {isPhotoMode
+                                    ? (isLoading ? <Sparkles className="w-8 h-8 animate-spin" /> : <ImageIcon className="w-8 h-8" />)
+                                    : isApiMode
+                                        ? (isLoading ? <Sparkles className="w-8 h-8 animate-spin" /> : <Sparkles className="w-8 h-8" />)
+                                        : (copied ? <Check className="w-8 h-8" /> : <Wand2 className="w-8 h-8" />)
+                                }
                             </div>
 
                             {/* Text Status */}
-                            <h4 className={`text-xl font-bold mb-2 transition-colors ${(subject || isApiMode) ? 'text-[#00353F]' : 'text-[#00353F]/40'}`}>
-                                {isApiMode
-                                    ? (results ? "Tendances trouvées !" : "Prêt à scanner le web")
-                                    : (copied ? "C'est dans le presse-papier !" : (subject ? 'Votre mission est prête' : 'En attente du sujet...'))
+                            <h4 className={`text-xl font-bold mb-2 transition-colors ${isActive ? 'text-[#00353F]' : 'text-[#00353F]/40'}`}>
+                                {isPhotoMode
+                                    ? (results ? `${results.length} prompt(s) photo généré(s)` : (photoReady ? 'Prêt à générer' : 'En attente du sujet et de l\'article...'))
+                                    : isApiMode
+                                        ? (results ? "Tendances trouvées !" : "Prêt à scanner le web")
+                                        : (copied ? "C'est dans le presse-papier !" : (subject ? 'Votre mission est prête' : 'En attente du sujet...'))
                                 }
                             </h4>
 
-                            <p className={`text-sm mb-8 max-w-sm mx-auto transition-colors ${(subject || isApiMode) ? 'text-[#00353F]/60' : 'text-[#00353F]/30'}`}>
-                                {isApiMode
-                                    ? "L'IA va analyser les blogs et réseaux sociaux pour détecter les sujets chauds."
-                                    : (copied
-                                        ? 'Vous pouvez maintenant lancer l\'agent.'
-                                        : (subject ? 'L\'IA a généré le prompt parfait pour votre besoin.' : 'Remplissez le sujet ci-dessus pour générer la formule.'))
+                            <p className={`text-sm mb-8 max-w-sm mx-auto transition-colors ${isActive ? 'text-[#00353F]/60' : 'text-[#00353F]/30'}`}>
+                                {isPhotoMode
+                                    ? (results ? 'Copie chaque prompt et colle-le dans Gemini Imagen.' : 'Renseigne le sujet et colle l\'article rédigé pour générer les prompts photo au style ABC Salles.')
+                                    : isApiMode
+                                        ? "L'IA va analyser les blogs et réseaux sociaux pour détecter les sujets chauds."
+                                        : (copied
+                                            ? 'Vous pouvez maintenant lancer l\'agent.'
+                                            : (subject ? 'L\'IA a généré le prompt parfait pour votre besoin.' : 'Remplissez le sujet ci-dessus pour générer la formule.'))
                                 }
                             </p>
 
                             {/* Main Button */}
-                            {isApiMode ? (
+                            {isPhotoMode ? (
+                                <button
+                                    onClick={handleGeneratePhotoPrompts}
+                                    disabled={!photoReady || isLoading}
+                                    className={`
+                                        group relative flex items-center gap-3 px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg
+                                        ${(!photoReady || isLoading)
+                                            ? 'bg-[#00353F]/5 text-[#00353F]/20 cursor-not-allowed shadow-none'
+                                            : 'bg-[#007A8C] text-white hover:bg-[#006A7C] scale-105'
+                                        }
+                                    `}
+                                >
+                                    {isLoading ? (
+                                        <span>Génération en cours...</span>
+                                    ) : (
+                                        <>
+                                            <ImageIcon className="w-5 h-5" />
+                                            <span>{results ? 'REGÉNÉRER' : 'GÉNÉRER LES PROMPTS PHOTO'}</span>
+                                        </>
+                                    )}
+                                </button>
+                            ) : isApiMode ? (
                                 <button
                                     onClick={handleSearch}
                                     disabled={!subject || isLoading}
@@ -285,14 +380,21 @@ function MissionCockpit({ prompt, agent, index }) {
                             )}
                         </div>
                     </div>
+                        );
+                    })()}
 
                     {/* Results Area for API Mode */}
                     {isApiMode && results && (
                         <TrendsDisplay results={results} />
                     )}
 
+                    {/* Results Area for Photo Mode */}
+                    {isPhotoMode && results && (
+                        <PhotoPromptsDisplay prompts={results} />
+                    )}
+
                     {/* Error Display */}
-                    {isApiMode && error && (
+                    {(isApiMode || isPhotoMode) && error && (
                         <div className="mt-6 p-4 bg-red-50 text-red-600 rounded-xl text-center font-medium">
                             {error}
                         </div>
@@ -300,7 +402,7 @@ function MissionCockpit({ prompt, agent, index }) {
 
                     {/* Advanced: Raw Prompt View (Standard Mode Only) */}
                     <AnimatePresence>
-                        {showPrompt && !isApiMode && (
+                        {showPrompt && !isApiMode && !isPhotoMode && (
                             <motion.div
                                 initial={{ height: 0, opacity: 0 }}
                                 animate={{ height: 'auto', opacity: 1 }}
@@ -315,16 +417,21 @@ function MissionCockpit({ prompt, agent, index }) {
                     </AnimatePresence>
                 </div>
 
-                {/* SECTION 3: LAUNCH (Only for Standard Mode) */}
-                {!isApiMode && (
+                {/* SECTION 3: LAUNCH (Only for Standard & Photo Mode) */}
+                {!isApiMode && (() => {
+                    const launchHref = prompt.externalLinkOverride || agent.externalLink;
+                    const launchLabel = prompt.externalLinkLabel || `Lancer ${agent.name}`;
+                    const lockedTooltip = isPhotoMode ? 'Génère les prompts d\'abord !' : 'Copiez la formule d\'abord !';
+                    const LaunchIcon = isPhotoMode ? ImageIcon : agent.icon;
+                    return (
                     <div>
                         <label className="block text-sm font-bold text-[#00353F]/40 uppercase tracking-wider mb-4 pl-1">
-                            3. Lancez l'Agent
+                            {isPhotoMode ? '4. Ouvrez Gemini Imagen' : '3. Lancez l\'Agent'}
                         </label>
 
                         <div className="flex justify-center">
                             <a
-                                href={launchUnlocked ? agent.externalLink : '#'}
+                                href={launchUnlocked ? launchHref : '#'}
                                 target={launchUnlocked ? "_blank" : "_self"}
                                 rel={launchUnlocked ? "noopener noreferrer" : ""}
                                 onClick={(e) => !launchUnlocked && e.preventDefault()}
@@ -337,24 +444,25 @@ function MissionCockpit({ prompt, agent, index }) {
                 `}
                             >
                                 <div className={`p-2 rounded-xl ${launchUnlocked ? 'bg-white/20' : 'bg-[#00353F]/5'}`}>
-                                    <agent.icon className="w-6 h-6" />
+                                    <LaunchIcon className="w-6 h-6" />
                                 </div>
                                 <div className="text-left">
                                     <p className={`text-xs font-bold uppercase tracking-wider ${launchUnlocked ? 'text-white/60' : 'text-inherit'}`}>Dernière étape</p>
-                                    <p className="text-lg font-bold">Lancer {agent.name}</p>
+                                    <p className="text-lg font-bold">{launchLabel}</p>
                                 </div>
                                 {launchUnlocked && <ExternalLink className="w-5 h-5 ml-2 animate-pulse" />}
 
                                 {!launchUnlocked && (
                                     <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#00353F] text-white text-xs px-3 py-1.5 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                                        Copiez la formule d'abord !
+                                        {lockedTooltip}
                                         <div className="absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-2 h-2 bg-[#00353F] rotate-45" />
                                     </div>
                                 )}
                             </a>
                         </div>
                     </div>
-                )}
+                    );
+                })()}
 
             </div>
         </motion.div>
@@ -613,6 +721,73 @@ Ton : Journalistique et "In the know".`;
                     </div>
                 )}
             </AnimatePresence>
+        </motion.div>
+    );
+}
+
+// Photo prompts list — one prompt per H2 section, each with a copy button.
+function PhotoPromptsDisplay({ prompts }) {
+    const [copiedIdx, setCopiedIdx] = useState(null);
+
+    const copy = (text, idx) => {
+        navigator.clipboard.writeText(text);
+        setCopiedIdx(idx);
+        setTimeout(() => setCopiedIdx(null), 2000);
+    };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-8 space-y-4"
+        >
+            <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-bold text-[#00353F]/40 uppercase tracking-wider pl-1">
+                    {prompts.length} prompt{prompts.length > 1 ? 's' : ''} générés au style ABC Salles
+                </p>
+                <p className="text-xs text-[#00353F]/40 pr-1">
+                    Colle chacun dans Gemini Imagen
+                </p>
+            </div>
+
+            {prompts.map((p, idx) => {
+                const isCopied = copiedIdx === idx;
+                return (
+                    <div
+                        key={idx}
+                        className="relative bg-white border-2 border-[#00353F]/10 rounded-2xl overflow-hidden hover:border-[#007A8C]/30 transition-colors"
+                    >
+                        <div className="flex items-center justify-between bg-[#FAFAFA] px-5 py-3 border-b border-[#00353F]/5">
+                            <div className="flex items-center gap-3 min-w-0">
+                                <div className="flex-shrink-0 w-7 h-7 rounded-full bg-[#007A8C] text-white flex items-center justify-center font-bold text-xs">
+                                    {idx + 1}
+                                </div>
+                                <p className="text-sm font-bold text-[#00353F] truncate">
+                                    {p.section || `Prompt ${idx + 1}`}
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => copy(p.prompt, idx)}
+                                className={`
+                                    flex-shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all
+                                    ${isCopied
+                                        ? 'bg-[#22C55E] text-white'
+                                        : 'bg-[#00353F] text-white hover:bg-[#007A8C]'
+                                    }
+                                `}
+                            >
+                                {isCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                                <span>{isCopied ? 'Copié' : 'Copier'}</span>
+                            </button>
+                        </div>
+                        <div className="p-5 bg-[#FAFAFA]/30">
+                            <p className="text-sm text-[#00353F]/80 leading-relaxed whitespace-pre-wrap font-mono">
+                                {p.prompt}
+                            </p>
+                        </div>
+                    </div>
+                );
+            })}
         </motion.div>
     );
 }

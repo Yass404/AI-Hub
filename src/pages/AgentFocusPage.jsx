@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExternalLink, ArrowLeft, Copy, Check, Sparkles, Wand2, Eye, EyeOff, ImageIcon } from 'lucide-react';
 import { departments } from '../data/agentsData';
@@ -7,6 +7,8 @@ import { departments } from '../data/agentsData';
 export default function AgentFocusPage() {
     const { departmentId, agentId } = useParams();
     const department = departments[departmentId];
+    // Shared subject across missions of the same agent (Mission #1 → Mission #2 photo)
+    const [sharedSubject, setSharedSubject] = useState('');
 
     if (!department) return null;
 
@@ -68,7 +70,14 @@ export default function AgentFocusPage() {
             {/* Main Content: Mission Cockpit */}
             <div className="max-w-4xl mx-auto px-4 -mt-12 relative z-20 space-y-16">
                 {agentPrompts.map((prompt, index) => (
-                    <MissionCockpit key={prompt.id} prompt={prompt} agent={agent} index={index} />
+                    <MissionCockpit
+                        key={prompt.id}
+                        prompt={prompt}
+                        agent={agent}
+                        index={index}
+                        sharedSubject={sharedSubject}
+                        onSubjectChange={setSharedSubject}
+                    />
                 ))}
             </div>
 
@@ -77,9 +86,24 @@ export default function AgentFocusPage() {
 }
 
 // "The Mission Cockpit" Component
-function MissionCockpit({ prompt, agent, index }) {
-    const [subject, setSubject] = useState('');
+function MissionCockpit({ prompt, agent, index, sharedSubject, onSubjectChange }) {
+    // For photo mode, prefill from sharedSubject (filled by Mission #1).
+    // For other modes, use local state seeded from sharedSubject so the user can override.
+    const [subject, setSubject] = useState(sharedSubject || '');
     const [articleText, setArticleText] = useState('');
+
+    // Sync FROM parent when sharedSubject changes (e.g. user typed in Mission #1 → reflect in Mission #2)
+    // Only update if our local subject is empty or matches the previous shared value, to not overwrite manual edits.
+    const prevShared = useRef(sharedSubject);
+    useEffect(() => {
+        if (sharedSubject !== prevShared.current) {
+            // Only auto-fill if user hasn't manually changed this mission's subject
+            if (subject === '' || subject === prevShared.current) {
+                setSubject(sharedSubject || '');
+            }
+            prevShared.current = sharedSubject;
+        }
+    }, [sharedSubject, subject]);
     const [copied, setCopied] = useState(false);
     const [launchUnlocked, setLaunchUnlocked] = useState(false);
     const [showPrompt, setShowPrompt] = useState(false);
@@ -198,8 +222,11 @@ function MissionCockpit({ prompt, agent, index }) {
                             type="text"
                             value={subject}
                             onChange={(e) => {
-                                setSubject(e.target.value);
+                                const v = e.target.value;
+                                setSubject(v);
                                 setLaunchUnlocked(false);
+                                // Propagate to siblings (Mission #1 → Mission #2 photo prefill)
+                                if (onSubjectChange) onSubjectChange(v);
                             }}
                             placeholder={isApiMode ? "Ex : Mariage Été 2026..." : "Ex : Soirée de Gala..."}
                             className="w-full text-2xl md:text-3xl font-bold text-[#00353F] placeholder-[#00353F]/15 bg-transparent border-0 border-b-2 border-[#00353F]/10 px-0 py-4 focus:ring-0 focus:border-[#007A8C] transition-all"

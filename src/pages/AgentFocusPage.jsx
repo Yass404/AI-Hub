@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ExternalLink, ArrowLeft, Copy, Check, Sparkles, Wand2, Eye, EyeOff, ImageIcon } from 'lucide-react';
+import { ExternalLink, ArrowLeft, Copy, Check, Sparkles, Wand2, Eye, EyeOff, ImageIcon, BookOpen } from 'lucide-react';
 import { departments } from '../data/agentsData';
 
 export default function AgentFocusPage() {
@@ -69,6 +69,12 @@ export default function AgentFocusPage() {
 
             {/* Main Content: Mission Cockpit */}
             <div className="max-w-4xl mx-auto px-4 -mt-12 relative z-20 space-y-16">
+
+                {/* How-it-works dropdown — only for agents with a photo mission */}
+                {agentPrompts.some(p => p.customAction === 'GENERATE_PHOTO_PROMPT') && (
+                    <HowItWorks />
+                )}
+
                 {agentPrompts.map((prompt, index) => (
                     <MissionCockpit
                         key={prompt.id}
@@ -816,5 +822,78 @@ function PhotoPromptsDisplay({ prompts }) {
                 );
             })}
         </motion.div>
+    );
+}
+
+// Collapsible "How it works" panel shown above the missions on agents with a photo mission.
+function HowItWorks() {
+    const [open, setOpen] = useState(false);
+    const quickSteps = [
+        { n: 1, label: 'Tape ton sujet', sub: 'Mission #1' },
+        { n: 2, label: 'Copie la formule', sub: 'puis lance le Gem' },
+        { n: 3, label: 'Récupère l\'article', sub: 'colle dans le CRM' },
+        { n: 4, label: 'Reviens ici', sub: 'Mission #2 photo' },
+        { n: 5, label: 'Génère les prompts', sub: '1 par section H2' },
+        { n: 6, label: 'Ouvre Gemini Imagen', sub: 'colle, choisis' },
+    ];
+    return (
+        <div className="bg-white rounded-3xl shadow-xl shadow-[#00353F]/5 ring-1 ring-[#00353F]/5 overflow-hidden">
+            <button
+                onClick={() => setOpen(!open)}
+                className="w-full p-6 flex items-center justify-between text-left hover:bg-[#FAFAFA] transition-colors"
+            >
+                <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-2xl bg-indigo-50">
+                        <BookOpen className="w-5 h-5 text-indigo-600" />
+                    </div>
+                    <div>
+                        <p className="text-xs font-bold uppercase tracking-wider text-[#00353F]/40 mb-1">
+                            Comment ça marche
+                        </p>
+                        <p className="text-lg font-bold text-[#00353F]">
+                            Le parcours complet (texte + photos) en 6 étapes
+                        </p>
+                    </div>
+                </div>
+                <div className={`text-2xl text-[#007A8C] transition-transform ${open ? 'rotate-45' : ''}`}>+</div>
+            </button>
+
+            <AnimatePresence>
+                {open && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden"
+                    >
+                        <div className="px-6 pb-6 pt-2 border-t border-[#00353F]/5">
+                            <p className="text-sm text-[#00353F]/70 leading-relaxed mb-6 max-w-3xl">
+                                Tu rédiges l'article via la <strong>Mission #1</strong> + le Gem Google, tu colles l'article dans le CRM, puis tu reviens ici pour générer les prompts photo via la <strong>Mission #2</strong>.
+                            </p>
+
+                            <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
+                                {quickSteps.map((step) => (
+                                    <div key={step.n} className="bg-[#FAFAFA] rounded-xl p-3 text-center">
+                                        <div className="w-7 h-7 mx-auto mb-2 rounded-full bg-[#007A8C] text-white flex items-center justify-center font-bold text-xs">
+                                            {step.n}
+                                        </div>
+                                        <p className="text-xs font-bold text-[#00353F] leading-tight">{step.label}</p>
+                                        <p className="text-[10px] text-[#00353F]/50 mt-1">{step.sub}</p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <Link
+                                to="/aide"
+                                className="inline-flex items-center gap-2 text-sm font-bold text-[#007A8C] hover:text-[#005a6a] transition-colors"
+                            >
+                                Voir le guide complet avec captures
+                                <ExternalLink className="w-3.5 h-3.5" />
+                            </Link>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
     );
 }

@@ -8,6 +8,7 @@ import {
   Target,
   Palette,
   Sparkles,
+  BookOpen,
 } from 'lucide-react';
 
 const navItems = [
@@ -17,6 +18,7 @@ const navItems = [
   { id: 'communication', label: 'Communication', icon: MessageCircle, path: '/communication' },
   { id: 'marketing', label: 'Marketing', icon: Target, path: '/marketing' },
   { id: 'creation', label: 'Création Visuelle', icon: Palette, path: '/creation' },
+  { id: 'aide', label: 'Guide rédaction', icon: BookOpen, path: '/aide' },
 ];
 
 export default function Sidebar() {

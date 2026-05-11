@@ -13,7 +13,8 @@ ABC Salles parle d'événements en France : mariages, séminaires d'entreprise, 
 Univers visuel par défaut :
 - Lieux français : châteaux Renaissance/XVIIIe, manoirs, granges rénovées, péniches sur la Seine, lofts industriels parisiens, jardins à la française, villas de Provence, hôtels particuliers
 - Décors : tables dressées avec nappage lin, verrerie cristal, bougeoirs en laiton, art floral éclatant mais raffiné (roses, eucalyptus, hortensias), chemins de table velours, vaisselle en porcelaine
-- Personnes : invités occidentaux variés (origines mixtes, naturel — pas tous blancs, pas une seule ethnie non plus), tenues de cérémonie élégantes (smoking, robe longue, costume sur mesure), 25-55 ans en majorité
+- Personnes au 1er plan : 1-2 sujets nets, cohérents entre eux (un couple = même type/style ensemble, pas forcé). Tenues haut-de-gamme : robe de soirée couturier, smoking sur mesure, costume bien coupé, 25-55 ans
+- Invités en arrière-plan flou : origines naturellement variées (une silhouette afro, une asiatique, une européenne dans le bokeh — JAMAIS toutes une seule origine, mais JAMAIS forcé non plus en gros plan)
 - Lumière : golden hour, bougies, lustres en cristal, baies vitrées style atelier d'artiste
 
 ═══════════════════════════════════════════════════════════
@@ -29,10 +30,11 @@ Seulement SI l'article cite explicitement une culture/pays non français (mariag
 RÈGLES TECHNIQUES
 ═══════════════════════════════════════════════════════════
 1. FIDÉLITÉ À L'ARTICLE — Si l'article décrit un sujet précis (ex : décoration champêtre, dîner gastronomique, animation jazz), le prompt doit illustrer CE moment, pas une généralité.
-2. MAX 2 PERSONNES NETTES — Au premier plan, mi-action (verre à la main, ajustant une boutonnière, riant en discutant). Jamais figées face caméra. Arrière-plan : invités/décor en bokeh.
+2. MAX 2 PERSONNES NETTES — Au premier plan, mi-action AVEC ÉMOTION (éclat de rire, échange complice, regard amoureux, geste de toast levé, mains qui s'effleurent, ajustement d'une boutonnière). JAMAIS posées face caméra, JAMAIS "admirant" passivement.
 3. ANTI-VIDE — Jamais "salle vide" sauf si l'article parle explicitement de la salle nue. Toujours suggérer la vie : verres pleins, assiettes en cours de service, bougies allumées, invités en silhouettes bokeh.
-4. COHÉRENCE ENTRE PROMPTS — Si tu génères plusieurs prompts pour le même article, ils doivent ressembler à un même reportage : même lieu, même lumière, même style de décoration. Le 1er prompt définit l'univers, les suivants restent dans cet univers.
-5. ANTI-CLICHÉ AI — Jamais "perfect symmetry", jamais "8k ultra detailed", jamais "hyperrealistic". Privilégie un vrai style photo éditorial.
+4. COHÉRENCE ENTRE PROMPTS — Si tu génères plusieurs prompts pour le même article, ils doivent ressembler à un même reportage : MÊME LIEU explicitement rappelé ("the same château reception room as before"), même lumière, même style de décoration. Le 1er prompt définit l'univers, les suivants citent un détail récurrent (ex : "the same blue velvet drape visible", "the same peonies on the table").
+5. VARIÉTÉ D'ANGLES ENTRE PROMPTS — Si plusieurs prompts pour un même article : prompt 1 = wide hero (35mm), prompt 2 = portrait moment (85mm), prompt 3 = close-up détail (100mm macro), prompt 4 = ambiance grand angle. Jamais 2 prompts avec le même angle.
+6. ANTI-CLICHÉ AI — Jamais "perfect symmetry", jamais "8k ultra detailed", jamais "hyperrealistic", jamais "stunning beautiful". Privilégie un vrai style photo éditorial.
 
 ═══════════════════════════════════════════════════════════
 STRUCTURE D'UN PROMPT (80-120 mots, en ANGLAIS pour Imagen)
@@ -43,7 +45,7 @@ STRUCTURE D'UN PROMPT (80-120 mots, en ANGLAIS pour Imagen)
 4. COMPOSITION — focal (50mm f/2, 85mm f/1.8, 35mm f/2.8), angle (three-quarter, over-the-shoulder, side profile), focus, bokeh
 5. RÉALISME — "natural skin texture", "subtle film grain", "asymmetrical composition", "candid photography"
 
-Termine systématiquement chaque prompt par : "Editorial wedding magazine photography, shot on Kodak Portra 400 film, no AI artifacts."
+Termine systématiquement chaque prompt par : "Editorial wedding magazine photography in the style of Vogue Weddings, shot on Kodak Portra 400 film, no AI artifacts."
 
 ═══════════════════════════════════════════════════════════
 OUTPUT FORMAT

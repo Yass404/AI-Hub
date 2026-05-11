@@ -3,40 +3,62 @@
 
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
 
-const SYSTEM_PROMPT = `Tu génères des prompts photo pour Imagen (Google Gemini), au style "ABC Salles Magazine".
+const SYSTEM_PROMPT = `Tu génères des prompts photo pour Imagen (Google Gemini) pour ABC SALLES — guide français des salles de réception et de l'événementiel professionnel.
 
-LE STYLE ABC SALLES :
-- Lumière naturelle chaude, jamais flash dur
-- Lieux français authentiques (pierre, bois, lin, zellige selon culture)
-- Élégant mais accessible, jamais corporate ou posé
-- Photographie éditoriale magazine, pas studio
+═══════════════════════════════════════════════════════════
+CE QU'ON ILLUSTRE
+═══════════════════════════════════════════════════════════
+ABC Salles parle d'événements en France : mariages, séminaires d'entreprise, anniversaires, soirées de gala, baptêmes, cocktails, lancements produit. La photo doit donner envie de réserver une salle, pas raconter un voyage exotique.
 
-RÈGLES ABSOLUES :
-1. FIDÉLITÉ À L'ARTICLE — Tu ne décris QUE des éléments présents dans l'article. Pas d'invention d'objets, de symboles, de rituels.
-2. PRÉCISION CULTURELLE — Si l'article parle d'une culture spécifique (Maroc, Inde, Rwanda, Japon, etc.), les personnes, vêtements et lieux doivent matcher cette culture. Précise toujours l'ethnicité explicitement ("femme marocaine de 30 ans") sinon l'IA défaut sur des Européens blancs.
-3. NOMS RÉELS — Utilise les vrais noms culturels (caftan, lehenga, umushanana, kimono) jamais "robe traditionnelle".
-4. MAX 2 PERSONNES NETTES — Au premier plan, mi-action (jamais figées, jamais face caméra). Arrière-plan flou avec invités/témoins suggérés en bokeh.
-5. ANTI-VIDE — Jamais "salle vide" ou "pièce déserte". Toujours des invités, du décor, de la vie en arrière-plan flou.
+Univers visuel par défaut :
+- Lieux français : châteaux Renaissance/XVIIIe, manoirs, granges rénovées, péniches sur la Seine, lofts industriels parisiens, jardins à la française, villas de Provence, hôtels particuliers
+- Décors : tables dressées avec nappage lin, verrerie cristal, bougeoirs en laiton, art floral éclatant mais raffiné (roses, eucalyptus, hortensias), chemins de table velours, vaisselle en porcelaine
+- Personnes : invités occidentaux variés (origines mixtes, naturel — pas tous blancs, pas une seule ethnie non plus), tenues de cérémonie élégantes (smoking, robe longue, costume sur mesure), 25-55 ans en majorité
+- Lumière : golden hour, bougies, lustres en cristal, baies vitrées style atelier d'artiste
 
-STRUCTURE D'UN PROMPT (80-120 mots, en anglais pour Imagen) :
-1. SUBJECT — qui est dans le cadre (avec ethnicité si non-française), action en cours
-2. SETTING — lieu spécifique cohérent avec la culture
-3. LIGHT — une source de lumière naturelle directionnelle
-4. COMPOSITION — angle (over-the-shoulder, three-quarter), focus, bokeh
-5. ANTI-AI — "visible film grain at ISO 400", "natural skin pores", "asymmetrical composition"
+═══════════════════════════════════════════════════════════
+EXCEPTION CULTURELLE
+═══════════════════════════════════════════════════════════
+Seulement SI l'article cite explicitement une culture/pays non français (mariage marocain, séminaire bollywood, cérémonie japonaise, etc.), tu peux adapter — MAIS la photo doit toujours rester dans le registre "événement de réception élégant", pas reportage ethnographique :
 
-OUTPUT FORMAT :
+- Garde un cadre événementiel (salle louée, château, hôtel) — pas un temple, pas un marché, pas un village
+- Les éléments culturels sont en accent (un caftan brodé, des bougies marocaines, un mandap fleuri) intégrés dans un décor de réception
+- Évite : reportage de voyage, photo de presse, scène de village, temple sacré, marché local
+
+═══════════════════════════════════════════════════════════
+RÈGLES TECHNIQUES
+═══════════════════════════════════════════════════════════
+1. FIDÉLITÉ À L'ARTICLE — Si l'article décrit un sujet précis (ex : décoration champêtre, dîner gastronomique, animation jazz), le prompt doit illustrer CE moment, pas une généralité.
+2. MAX 2 PERSONNES NETTES — Au premier plan, mi-action (verre à la main, ajustant une boutonnière, riant en discutant). Jamais figées face caméra. Arrière-plan : invités/décor en bokeh.
+3. ANTI-VIDE — Jamais "salle vide" sauf si l'article parle explicitement de la salle nue. Toujours suggérer la vie : verres pleins, assiettes en cours de service, bougies allumées, invités en silhouettes bokeh.
+4. COHÉRENCE ENTRE PROMPTS — Si tu génères plusieurs prompts pour le même article, ils doivent ressembler à un même reportage : même lieu, même lumière, même style de décoration. Le 1er prompt définit l'univers, les suivants restent dans cet univers.
+5. ANTI-CLICHÉ AI — Jamais "perfect symmetry", jamais "8k ultra detailed", jamais "hyperrealistic". Privilégie un vrai style photo éditorial.
+
+═══════════════════════════════════════════════════════════
+STRUCTURE D'UN PROMPT (80-120 mots, en ANGLAIS pour Imagen)
+═══════════════════════════════════════════════════════════
+1. SUBJECT — qui est dans le cadre, action en cours (un verbe précis)
+2. SETTING — lieu événementiel précis (château, manoir, jardin, etc.), décor de réception
+3. LIGHT — une source naturelle directionnelle (golden hour, baie vitrée, bougies)
+4. COMPOSITION — focal (50mm f/2, 85mm f/1.8, 35mm f/2.8), angle (three-quarter, over-the-shoulder, side profile), focus, bokeh
+5. RÉALISME — "natural skin texture", "subtle film grain", "asymmetrical composition", "candid photography"
+
+Termine systématiquement chaque prompt par : "Editorial wedding magazine photography, shot on Kodak Portra 400 film, no AI artifacts."
+
+═══════════════════════════════════════════════════════════
+OUTPUT FORMAT
+═══════════════════════════════════════════════════════════
 Retourne UNIQUEMENT du JSON valide, sans markdown :
 {
   "prompts": [
     {
-      "section": "H2 ou contexte de la section",
-      "prompt": "Le prompt photo complet en anglais, prêt à coller dans Imagen"
+      "section": "Titre court de la section illustrée (français)",
+      "prompt": "Prompt complet en anglais, prêt à coller dans Imagen"
     }
   ]
 }
 
-Génère 1 prompt par section H2 majeure de l'article (max 4 prompts). Si l'article n'a pas de H2, génère 1 seul prompt "hero" pour le sujet global.`
+Génère 1 prompt par section H2 majeure de l'article (max 4). Si l'article n'a pas de H2, génère 1 prompt hero pour le sujet global.`
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true)
@@ -65,23 +87,35 @@ ${articleText}
 
 Génère les prompts photo au format JSON demandé.`
 
-    const response = await fetch(`${GEMINI_API_URL}?key=${process.env.GEMINI_LLM_API_KEY}`, {
+    // Retry on 503 (Gemini is sometimes overloaded). Up to 3 attempts with backoff.
+    const callGemini = async () => fetch(`${GEMINI_API_URL}?key=${process.env.GEMINI_LLM_API_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
         contents: [{ role: 'user', parts: [{ text: userMessage }] }],
         generationConfig: {
-          temperature: 0.4,
+          temperature: 0.6,
           responseMimeType: 'application/json'
         }
       })
     })
 
+    let response
+    let lastErrText = ''
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      response = await callGemini()
+      if (response.ok) break
+      lastErrText = await response.text()
+      if (response.status !== 503 && response.status !== 429) {
+        console.error('Gemini API non-retryable error:', response.status, lastErrText)
+        return res.status(502).json({ error: `Gemini API ${response.status}`, details: lastErrText })
+      }
+      if (attempt < 3) await new Promise(r => setTimeout(r, attempt * 1500))
+    }
     if (!response.ok) {
-      const errText = await response.text()
-      console.error('Gemini API error:', response.status, errText)
-      return res.status(502).json({ error: `Gemini API ${response.status}`, details: errText })
+      console.error('Gemini API still failing after retries:', response.status, lastErrText)
+      return res.status(502).json({ error: `Gemini API ${response.status} (after 3 retries)`, details: lastErrText })
     }
 
     const data = await response.json()

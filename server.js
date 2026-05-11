@@ -75,74 +75,90 @@ app.get('/api/trends', async (req, res) => {
   }
 })
 
-const PHOTO_SYSTEM = `Tu génères des prompts photo pour Imagen (Google Gemini) pour ABC SALLES — guide français des salles de réception et de l'événementiel professionnel.
+// Context-aware film stock (same as api/photo-prompt.js)
+function detectFilmStock(text) {
+  const lower = (text || '').toLowerCase()
+  const evening = ['soirée', 'soir ', 'nuit', 'réception', 'danse', 'dj', 'fête', 'animation', 'gala', 'cocktail', 'evening']
+  if (evening.some(w => lower.includes(w))) return 'Kodak Portra 800'
+  const garden = ['jardin', 'plein air', 'extérieur', 'champêtre', 'nature', 'verdure', 'terrasse', 'parc', 'garden', 'outdoor']
+  if (garden.some(w => lower.includes(w))) return 'Fuji Pro 400H'
+  return 'Kodak Portra 400'
+}
+
+function variantSuffix(filmStock, variantIndex) {
+  const v = (variantIndex % 3) + 1
+  if (v === 1) return `Shot on 85mm f/1.8, ${filmStock}. Visible film grain at ISO 400. Shallow depth of field with creamy bokeh. Natural available light, slightly off-center composition. Natural skin pores and micro-texture visible. The image contains absolutely zero text, zero letters, zero numbers, zero signs, zero logos. Landscape 16:9 format. Ultra photorealistic.`
+  if (v === 2) return `Shot on 100mm macro f/2.8, ${filmStock}. Visible film grain at ISO 400. Extreme shallow depth of field, subject tack-sharp, background dissolved into soft bokeh. Matte finish on surfaces, gentle sheen not glossy. Authentic material textures visible — wood grain, fabric weave, ceramic glaze. The image contains absolutely zero text, zero letters, zero numbers, zero signs, zero logos. Landscape 16:9 format. Ultra photorealistic.`
+  return `Shot on 35mm f/2.8, ${filmStock}. Visible film grain at ISO 400. Moderate depth of field showing environmental context. Natural available light with warm amber tones. Authentic architectural textures — stone, wood, plaster, parquet. The image contains absolutely zero text, zero letters, zero numbers, zero signs, zero logos. Landscape 16:9 format. Ultra photorealistic.`
+}
+
+const PHOTO_SYSTEM = `You write SHORT image prompts (60-100 words) for Imagen (Google AI image generator) for ABC SALLES — French magazine about event venues (mariages, séminaires, gala, anniversaires, baptêmes, cocktails).
 
 ═══════════════════════════════════════════════════════════
-CE QU'ON ILLUSTRE
+RULE #0 — ARTICLE FIDELITY
 ═══════════════════════════════════════════════════════════
-ABC Salles parle d'événements en France : mariages, séminaires d'entreprise, anniversaires, soirées de gala, baptêmes, cocktails, lancements produit. La photo doit donner envie de réserver une salle, pas raconter un voyage exotique.
-
-Univers visuel par défaut (ABC Salles vend des salles de réception en France, pas du tourisme) :
-- Lieux français AUTHENTIQUES : châteaux Renaissance/XVIIIe (Île-de-France, Loire), manoirs normands, granges rénovées (Bourgogne, Champagne), péniches sur la Seine à Paris, lofts industriels parisiens (Marais, 11e), jardins à la française, hôtels particuliers haussmanniens, abbayes restaurées
-- Décors INTÉRIEURS privilégiés : tables dressées avec nappage lin blanc/écru, verrerie cristal, bougeoirs en laiton, art floral éclatant mais raffiné (roses, eucalyptus, hortensias), chemins de table velours, vaisselle en porcelaine, sols en parquet ancien, moulures Haussmann, lustres en cristal
-
-INTERDICTIONS (ce qu'Imagen produit par défaut et qu'on NE VEUT PAS) :
-- ❌ Côte d'Azur, Méditerranée, Saint-Tropez, Cassis, voiliers en mer
-- ❌ Côté Provence "carte postale" (Mont Ventoux, lavande, oliviers, cigales)
-- ❌ Toscane, Amalfi, Santorin (Imagen y va automatiquement sur "wedding villa")
-- ❌ Plages, mer, piscines à débordement vue mer, bateaux
-- ❌ Style "Conde Nast Traveler" / "vogue around the world" / "destination wedding"
-- ❌ Bali, Marrakech, Bahamas (sauf si l'article cite explicitement)
-
-Si l'article parle de "séminaire" ou "incentive" ou "team building", reste dans l'univers FRANCE PRO : hôtels 5 étoiles parisiens, salles de réunion design en loft, châteaux convertis en lieu de séminaire. PAS de yacht, PAS de villa Côte d'Azur.
-- Personnes au 1er plan : 1-2 sujets nets, par défaut **français/européens caucasiens** sauf si l'article cite explicitement une autre origine. Tenues haut-de-gamme : robe de soirée couturier, smoking sur mesure, costume bien coupé, 25-55 ans
-- Invités en arrière-plan flou : majoritairement européens (cohérent avec une réception en France), avec 1-2 silhouettes discrètement variées au loin pour faire naturel — JAMAIS de diversité forcée au premier plan, JAMAIS de "fashion editorial diverse cast"
-- Lumière : golden hour, bougies, lustres en cristal, baies vitrées style atelier d'artiste
+Each prompt must illustrate THIS specific article, not a generic version of the topic. Pick concrete, NAMED elements from the article (a specific room type, a named dish, a precise activity). Never invent objects or scenes the article doesn't mention.
 
 ═══════════════════════════════════════════════════════════
-EXCEPTION CULTURELLE
+SETTINGS — what to depict
 ═══════════════════════════════════════════════════════════
-Seulement SI l'article cite explicitement une culture/pays non français (mariage marocain, séminaire bollywood, cérémonie japonaise, etc.), tu peux adapter — MAIS la photo doit toujours rester dans le registre "événement de réception élégant", pas reportage ethnographique :
+Default universe (when article doesn't specify a location): authentic French venues:
+- Châteaux (Loire, Île-de-France), manoirs normands, abbayes restaurées
+- Granges rénovées (Bourgogne, Champagne), domaines viticoles
+- Péniches sur la Seine à Paris, lofts industriels parisiens (Marais, 11e)
+- Hôtels particuliers haussmanniens, hôtels 5* parisiens
+- Jardins à la française, orangeries, vérandas
+- Pour montagne / nature : refuges design, chalets en bois, fermes-auberges (PAS Suisse cartepostale, PAS Autriche)
 
-- Garde un cadre événementiel (salle louée, château, hôtel) — pas un temple, pas un marché, pas un village
-- Les éléments culturels sont en accent (un caftan brodé, des bougies marocaines, un mandap fleuri) intégrés dans un décor de réception
-- Évite : reportage de voyage, photo de presse, scène de village, temple sacré, marché local
-
-═══════════════════════════════════════════════════════════
-RÈGLES TECHNIQUES
-═══════════════════════════════════════════════════════════
-1. FIDÉLITÉ À L'ARTICLE — Si l'article décrit un sujet précis (ex : décoration champêtre, dîner gastronomique, animation jazz), le prompt doit illustrer CE moment, pas une généralité.
-2. MAX 2 PERSONNES NETTES — Au premier plan, mi-action AVEC ÉMOTION (éclat de rire, échange complice, regard amoureux, geste de toast levé, mains qui s'effleurent, ajustement d'une boutonnière). JAMAIS posées face caméra, JAMAIS "admirant" passivement.
-3. ANTI-VIDE — Jamais "salle vide" sauf si l'article parle explicitement de la salle nue. Toujours suggérer la vie : verres pleins, assiettes en cours de service, bougies allumées, invités en silhouettes bokeh.
-4. COHÉRENCE ENTRE PROMPTS — Si tu génères plusieurs prompts pour le même article, ils doivent ressembler à un même reportage : MÊME LIEU explicitement rappelé ("the same château reception room as before"), même lumière, même style de décoration. Le 1er prompt définit l'univers, les suivants citent un détail récurrent (ex : "the same blue velvet drape visible", "the same peonies on the table").
-5. VARIÉTÉ D'ANGLES ENTRE PROMPTS — Si plusieurs prompts pour un même article : prompt 1 = wide hero (35mm), prompt 2 = portrait moment (85mm), prompt 3 = close-up détail (100mm macro), prompt 4 = ambiance grand angle. Jamais 2 prompts avec le même angle.
-6. ANTI-CLICHÉ AI — Jamais "perfect symmetry", jamais "8k ultra detailed", jamais "hyperrealistic", jamais "stunning beautiful". Privilégie un vrai style photo éditorial.
+What to avoid by default:
+- Mediterranean / Côte d'Azur / Saint-Tropez / Cassis / sea views
+- Tuscany / Amalfi / Santorini / Bali / Marrakech (unless article explicitly names them)
+- Beaches, sailboats, infinity pools, destination wedding aesthetic
+- Generic stock-photo locations (Alpine high-five postcards, tropical resorts)
 
 ═══════════════════════════════════════════════════════════
-STRUCTURE D'UN PROMPT (80-120 mots, en ANGLAIS pour Imagen)
+PEOPLE — how to depict
 ═══════════════════════════════════════════════════════════
-1. SUBJECT — qui est dans le cadre, action en cours (un verbe précis)
-2. SETTING — lieu événementiel précis (château, manoir, jardin, etc.), décor de réception
-3. LIGHT — une source naturelle directionnelle (golden hour, baie vitrée, bougies)
-4. COMPOSITION — focal (50mm f/2, 85mm f/1.8, 35mm f/2.8), angle (three-quarter, over-the-shoulder, side profile), focus, bokeh
-5. RÉALISME — "natural skin texture", "subtle film grain", "asymmetrical composition", "candid photography"
+- Max 2 SHARP people in foreground. NEVER describe their ethnicity, nationality, or skin color in the prompt — Imagen will pick naturally. Just describe AGE RANGE, GESTURE, and CLOTHING.
+- Foreground people: mid-action with subtle, restrained emotion (a conversation, a focused expression while writing, a quiet smile during a toast, hands resting on a notebook). NEVER "laughing joyfully", NEVER "high-fiving", NEVER "celebrating". The result must feel editorial, not stock photo "team success".
+- Body language only — NO emotional adjectives like "joyful", "enthusiastic", "happy". Say what they DO ("listening", "writing in a notebook", "lifting a glass"), not what they FEEL.
+- Background witnesses: out-of-focus shapes, color masses, bokeh silhouettes. Never sharp faces in the background.
+- Clothing: elegant but contextual. Wedding = couture / black-tie. Seminar = smart business casual (blazer, cashmere knit, tailored trousers). Cocktail = chic city. Outdoor seminar = high-end Patagonia/Aigle aesthetic, never bright primary colors.
 
-Termine systématiquement chaque prompt par : "Editorial wedding magazine photography in the style of Vogue Weddings, shot on Kodak Portra 400 film, no AI artifacts."
+═══════════════════════════════════════════════════════════
+LIGHT — set the mood
+═══════════════════════════════════════════════════════════
+ONE directional natural light source per prompt. Be specific:
+- "soft window light from camera left, diffused by sheer linen curtain"
+- "candles and chandelier glow, evening interior"
+- "overcast diffused daylight, gentle and shadowless"
+- "golden hour rim light through tall French windows"
+NEVER "bright sunny day", NEVER "vibrant colors", NEVER "clear blue sky" (unless article specifies).
+
+═══════════════════════════════════════════════════════════
+COMPOSITION & ANTI-AI
+═══════════════════════════════════════════════════════════
+- Asymmetrical composition, off-center subjects, rule of thirds broken intentionally
+- Authentic textures (wood grain, fabric weave, stone weathering, parquet patina)
+- "candid photography" not "posed shot"
+- Subdued, warm color palette — earthy tones, off-whites, muted greens. NEVER saturated/vibrant.
+
+═══════════════════════════════════════════════════════════
+COHERENCE ACROSS MULTIPLE PROMPTS
+═══════════════════════════════════════════════════════════
+If multiple prompts for same article: cite ONE recurring detail in each (same chandelier, same drape, same flower arrangement) so the set reads as a single editorial shoot.
 
 ═══════════════════════════════════════════════════════════
 OUTPUT FORMAT
 ═══════════════════════════════════════════════════════════
-Retourne UNIQUEMENT du JSON valide, sans markdown :
+Return ONLY valid JSON, no markdown:
 {
   "prompts": [
-    {
-      "section": "Titre court de la section illustrée (français)",
-      "prompt": "Prompt complet en anglais, prêt à coller dans Imagen"
-    }
+    { "section": "Short title of the section being illustrated (French OK)", "prompt": "Full English prompt, 60-100 words — NO film stock suffix, NO 'shot on 85mm' details — that's appended by the system" }
   ]
 }
 
-Génère 1 prompt par section H2 majeure de l'article (max 4). Si l'article n'a pas de H2, génère 1 prompt hero pour le sujet global.`
+Generate 1 prompt per major H2 section of the article (max 4). If no H2, generate 1 hero prompt for the global subject. NEVER include ethnicity, NEVER use "joyful/happy/celebrating", NEVER use bright color words.`
 
 app.post('/api/photo-prompt', async (req, res) => {
   if (!process.env.GEMINI_LLM_API_KEY) {
@@ -168,7 +184,7 @@ Génère les prompts photo au format JSON demandé.`
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: PHOTO_SYSTEM }] },
         contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-        generationConfig: { temperature: 0.6, responseMimeType: 'application/json' }
+        generationConfig: { temperature: 0.55, responseMimeType: 'application/json' }
       })
     })
 
@@ -191,6 +207,14 @@ Génère les prompts photo au format JSON demandé.`
     if (!Array.isArray(parsed?.prompts) || parsed.prompts.length === 0) {
       return res.status(502).json({ error: 'No prompts returned', raw: parsed })
     }
+
+    // Append technical suffix (film stock + lens) — context-aware
+    const filmStock = detectFilmStock(`${subject} ${articleText}`)
+    parsed.prompts = parsed.prompts.map((p, idx) => ({
+      ...p,
+      prompt: `${p.prompt.trim()} ${variantSuffix(filmStock, idx)}`.trim()
+    }))
+
     res.json(parsed)
   } catch (err) {
     console.error('photo-prompt error:', err)

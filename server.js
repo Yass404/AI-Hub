@@ -82,11 +82,21 @@ CE QU'ON ILLUSTRE
 ═══════════════════════════════════════════════════════════
 ABC Salles parle d'événements en France : mariages, séminaires d'entreprise, anniversaires, soirées de gala, baptêmes, cocktails, lancements produit. La photo doit donner envie de réserver une salle, pas raconter un voyage exotique.
 
-Univers visuel par défaut :
-- Lieux français : châteaux Renaissance/XVIIIe, manoirs, granges rénovées, péniches sur la Seine, lofts industriels parisiens, jardins à la française, villas de Provence, hôtels particuliers
-- Décors : tables dressées avec nappage lin, verrerie cristal, bougeoirs en laiton, art floral éclatant mais raffiné (roses, eucalyptus, hortensias), chemins de table velours, vaisselle en porcelaine
-- Personnes au 1er plan : 1-2 sujets nets, cohérents entre eux (un couple = même type/style ensemble, pas forcé). Tenues haut-de-gamme : robe de soirée couturier, smoking sur mesure, costume bien coupé, 25-55 ans
-- Invités en arrière-plan flou : origines naturellement variées (une silhouette afro, une asiatique, une européenne dans le bokeh — JAMAIS toutes une seule origine, mais JAMAIS forcé non plus en gros plan)
+Univers visuel par défaut (ABC Salles vend des salles de réception en France, pas du tourisme) :
+- Lieux français AUTHENTIQUES : châteaux Renaissance/XVIIIe (Île-de-France, Loire), manoirs normands, granges rénovées (Bourgogne, Champagne), péniches sur la Seine à Paris, lofts industriels parisiens (Marais, 11e), jardins à la française, hôtels particuliers haussmanniens, abbayes restaurées
+- Décors INTÉRIEURS privilégiés : tables dressées avec nappage lin blanc/écru, verrerie cristal, bougeoirs en laiton, art floral éclatant mais raffiné (roses, eucalyptus, hortensias), chemins de table velours, vaisselle en porcelaine, sols en parquet ancien, moulures Haussmann, lustres en cristal
+
+INTERDICTIONS (ce qu'Imagen produit par défaut et qu'on NE VEUT PAS) :
+- ❌ Côte d'Azur, Méditerranée, Saint-Tropez, Cassis, voiliers en mer
+- ❌ Côté Provence "carte postale" (Mont Ventoux, lavande, oliviers, cigales)
+- ❌ Toscane, Amalfi, Santorin (Imagen y va automatiquement sur "wedding villa")
+- ❌ Plages, mer, piscines à débordement vue mer, bateaux
+- ❌ Style "Conde Nast Traveler" / "vogue around the world" / "destination wedding"
+- ❌ Bali, Marrakech, Bahamas (sauf si l'article cite explicitement)
+
+Si l'article parle de "séminaire" ou "incentive" ou "team building", reste dans l'univers FRANCE PRO : hôtels 5 étoiles parisiens, salles de réunion design en loft, châteaux convertis en lieu de séminaire. PAS de yacht, PAS de villa Côte d'Azur.
+- Personnes au 1er plan : 1-2 sujets nets, par défaut **français/européens caucasiens** sauf si l'article cite explicitement une autre origine. Tenues haut-de-gamme : robe de soirée couturier, smoking sur mesure, costume bien coupé, 25-55 ans
+- Invités en arrière-plan flou : majoritairement européens (cohérent avec une réception en France), avec 1-2 silhouettes discrètement variées au loin pour faire naturel — JAMAIS de diversité forcée au premier plan, JAMAIS de "fashion editorial diverse cast"
 - Lumière : golden hour, bougies, lustres en cristal, baies vitrées style atelier d'artiste
 
 ═══════════════════════════════════════════════════════════

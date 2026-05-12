@@ -120,8 +120,8 @@ const faqs = [
     a: 'Dans Gemini Imagen, tu as 4 variantes par génération — choisis la meilleure. Si aucune ne convient, tu peux soit régénérer dans Gemini (mêmes prompts, autres résultats), soit revenir dans le hub et cliquer « Regénérer » sur la Mission #2 pour obtenir de nouveaux prompts.',
   },
   {
-    q: 'Est-ce que je peux modifier les prompts ?',
-    a: 'Oui, les prompts sont du texte. Une fois copié dans Gemini, tu peux ajuster (changer la couleur d\'une robe, ajouter un détail). Les prompts sont en anglais parce qu\'Imagen comprend mieux l\'anglais.',
+    q: 'Une suggestion pour améliorer l\'outil ?',
+    a: 'Fais remonter toute idée d\'amélioration, bug ou retour à l\'équipe Tech. Plus on a de retours du terrain, plus on peut faire évoluer l\'outil pour qu\'il colle à ton usage réel.',
   },
   {
     q: 'Pour quels articles ça marche ?',

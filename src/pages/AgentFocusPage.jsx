@@ -26,13 +26,26 @@ export default function AgentFocusPage() {
                 <div className={`absolute top-0 right-0 w-[500px] h-[500px] bg-${agent.color}-200/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2`} />
 
                 <div className="max-w-4xl mx-auto px-4 relative z-10">
-                    <Link
-                        to={`/${departmentId}`}
-                        className="inline-flex items-center gap-2 text-[#00353F]/60 hover:text-[#007A8C] transition-colors mb-8 font-medium text-sm group"
-                    >
-                        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                        Retour au Hub {department.title}
-                    </Link>
+                    <div className="flex items-center justify-between mb-8 gap-4">
+                        <Link
+                            to={`/${departmentId}`}
+                            className="inline-flex items-center gap-2 text-[#00353F]/60 hover:text-[#007A8C] transition-colors font-medium text-sm group"
+                        >
+                            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                            Retour au Hub {department.title}
+                        </Link>
+
+                        {/* Help shortcut — only on agents with a photo mission */}
+                        {agentPrompts.some(p => p.customAction === 'GENERATE_PHOTO_PROMPT') && (
+                            <Link
+                                to="/aide"
+                                className="inline-flex items-center gap-2 bg-white border border-indigo-100 hover:border-indigo-300 hover:bg-indigo-50 text-indigo-700 px-3.5 py-2 rounded-lg font-semibold text-sm transition-all shadow-sm hover:shadow-md group"
+                            >
+                                <BookOpen className="w-4 h-4" />
+                                <span>Guide rédaction</span>
+                            </Link>
+                        )}
+                    </div>
 
                     <div className="flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left">
                         <motion.div

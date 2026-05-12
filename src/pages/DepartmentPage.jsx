@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, BookOpen } from 'lucide-react';
 import { PageHeader } from '../components';
 import { departments } from '../data/agentsData';
 
@@ -101,10 +101,34 @@ export default function DepartmentPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4, delay: 0.2 }}
-        className="text-[#00353F]/70 mb-16 max-w-2xl px-4 md:px-0 text-lg"
+        className="text-[#00353F]/70 mb-8 max-w-2xl px-4 md:px-0 text-lg"
       >
         {department.description}
       </motion.p>
+
+      {/* Guide rédaction banner — only on the Rédaction department */}
+      {departmentId === 'redaction' && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
+          className="px-4 md:px-0 mb-12"
+        >
+          <Link
+            to="/aide"
+            className="group flex items-center gap-4 bg-gradient-to-r from-indigo-50 to-[#F0EEE9] hover:from-indigo-100 hover:to-indigo-50 border border-indigo-100 rounded-2xl p-5 transition-all duration-200 hover:shadow-md"
+          >
+            <div className="flex-shrink-0 p-3 rounded-xl bg-white shadow-sm">
+              <BookOpen className="w-5 h-5 text-indigo-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold uppercase tracking-wider text-indigo-700/70 mb-0.5">Première utilisation ?</p>
+              <p className="text-[#00353F] font-bold leading-snug">Lis le guide rédaction — comment publier un article texte + photos en 6 étapes</p>
+            </div>
+            <ArrowRight className="w-5 h-5 text-indigo-600 group-hover:translate-x-1 transition-transform flex-shrink-0" />
+          </Link>
+        </motion.div>
+      )}
 
       {/* Sections Logic */}
       {sections ? (

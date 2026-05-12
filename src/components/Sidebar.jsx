@@ -11,6 +11,8 @@ import {
   BookOpen,
 } from 'lucide-react';
 
+// Top-level items. The 'aide' (Guide rédaction) entry is rendered as a
+// visual sub-item attached to Rédaction — see render block below.
 const navItems = [
   { id: 'home', label: 'Accueil', icon: Home, path: '/' },
   { id: 'redaction', label: 'Rédaction', icon: PenTool, path: '/redaction' },
@@ -18,7 +20,6 @@ const navItems = [
   { id: 'communication', label: 'Communication', icon: MessageCircle, path: '/communication' },
   { id: 'marketing', label: 'Marketing', icon: Target, path: '/marketing' },
   { id: 'creation', label: 'Création Visuelle', icon: Palette, path: '/creation' },
-  { id: 'aide', label: 'Guide rédaction', icon: BookOpen, path: '/aide' },
 ];
 
 export default function Sidebar() {
@@ -39,42 +40,69 @@ export default function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => (
-          <NavLink
-            key={item.id}
-            to={item.path}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
-                ? 'bg-[#007A8C]/10 text-[#007A8C]'
-                : 'text-[#00353F]/90 hover:bg-[#00353F]/5 hover:text-[#00353F]'
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <item.icon
-                  className={`w-5 h-5 flex-shrink-0 transition-colors ${isActive ? 'text-[#007A8C]' : 'text-[#00353F] group-hover:text-[#00353F]'
-                    }`}
-                />
-                <span className="font-bold text-sm tracking-wide">{item.label}</span>
-
-                {isActive && (
-                  <motion.div
-                    layoutId="activeIndicator"
-                    className="ml-auto w-1.5 h-1.5 bg-[#007A8C] rounded-full"
-                    initial={false}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+          <div key={item.id}>
+            <NavLink
+              to={item.path}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+                  ? 'bg-[#007A8C]/10 text-[#007A8C]'
+                  : 'text-[#00353F]/90 hover:bg-[#00353F]/5 hover:text-[#00353F]'
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <item.icon
+                    className={`w-5 h-5 flex-shrink-0 transition-colors ${isActive ? 'text-[#007A8C]' : 'text-[#00353F] group-hover:text-[#00353F]'
+                      }`}
                   />
-                )}
+                  <span className="font-bold text-sm tracking-wide">{item.label}</span>
 
-                {/* Badge "Bientôt" for inactive modules */}
-                {['commercial', 'communication', 'marketing', 'creation'].includes(item.id) && (
-                  <span className="ml-auto text-[10px] font-extrabold uppercase tracking-wider bg-[#00353F]/10 text-[#00353F]/60 px-2 py-0.5 rounded-full">
-                    Bientôt
-                  </span>
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeIndicator"
+                      className="ml-auto w-1.5 h-1.5 bg-[#007A8C] rounded-full"
+                      initial={false}
+                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    />
+                  )}
+
+                  {/* Badge "Bientôt" for inactive modules */}
+                  {['commercial', 'communication', 'marketing', 'creation'].includes(item.id) && (
+                    <span className="ml-auto text-[10px] font-extrabold uppercase tracking-wider bg-[#00353F]/10 text-[#00353F]/60 px-2 py-0.5 rounded-full">
+                      Bientôt
+                    </span>
+                  )}
+                </>
+              )}
+            </NavLink>
+
+            {/* Sub-item: Guide rédaction, anchored under Rédaction */}
+            {item.id === 'redaction' && (
+              <NavLink
+                to="/aide"
+                className={({ isActive }) =>
+                  `mt-1 ml-4 pl-4 flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-200 group relative border-l-2 ${isActive
+                    ? 'border-[#007A8C] bg-[#007A8C]/10 text-[#007A8C]'
+                    : 'border-[#00353F]/15 text-[#00353F]/70 hover:border-[#007A8C]/60 hover:bg-[#00353F]/5 hover:text-[#00353F]'
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <BookOpen
+                      className={`w-4 h-4 flex-shrink-0 transition-colors ${isActive ? 'text-[#007A8C]' : 'text-[#00353F]/60 group-hover:text-[#00353F]'
+                        }`}
+                    />
+                    <span className="font-semibold text-[13px] tracking-wide">Guide rédaction</span>
+                    <span className="ml-auto text-[9px] font-extrabold uppercase tracking-wider bg-[#007A8C]/15 text-[#007A8C] px-1.5 py-0.5 rounded-full">
+                      Aide
+                    </span>
+                  </>
                 )}
-              </>
+              </NavLink>
             )}
-          </NavLink>
+          </div>
         ))}
       </nav>
 

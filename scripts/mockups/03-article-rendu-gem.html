@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Mockup — Article rendu par le Gem</title>
+<style>
+  :root {
+    --bg: #1a1d23;
+    --card-bg: #25282f;
+    --user-bg: #2d5f6c;
+    --text: #e8e8ea;
+    --text-muted: rgba(232, 232, 234, 0.55);
+    --accent: #8ab4f8;
+    --tag-bg: rgba(138, 180, 248, 0.15);
+    --tag-color: #a8c7ff;
+    --code-bg: rgba(255, 255, 255, 0.05);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, system-ui, 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 32px;
+    width: 880px;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .gem-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4285f4, #9b72cb 50%, #d96570);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+  }
+  .gem-name { font-weight: 700; font-size: 15px; }
+  .gem-sub { font-size: 12px; color: var(--text-muted); }
+  .message-user {
+    background: var(--user-bg);
+    padding: 14px 18px;
+    border-radius: 18px 18px 4px 18px;
+    margin-left: auto;
+    max-width: 70%;
+    margin-bottom: 24px;
+    font-size: 14px;
+  }
+  .message-assistant {
+    background: var(--card-bg);
+    padding: 22px 26px;
+    border-radius: 18px 18px 18px 4px;
+    max-width: 92%;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .balise {
+    display: inline-block;
+    background: var(--tag-bg);
+    color: var(--tag-color);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 13px;
+    padding: 3px 9px;
+    border-radius: 6px;
+    margin: 16px 0 8px;
+    font-weight: 600;
+  }
+  .balise.first { margin-top: 4px; }
+  .title-h1 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .chapeau { color: var(--text-muted); font-style: italic; margin-bottom: 4px; }
+  .section-h2 { font-size: 15px; font-weight: 700; margin: 14px 0 4px; color: var(--accent); }
+  .para { color: rgba(232, 232, 234, 0.78); margin-bottom: 6px; }
+  .faq-item { color: rgba(232, 232, 234, 0.78); margin-bottom: 2px; font-size: 13px; }
+  .faq-q { color: var(--accent); font-weight: 600; }
+  code {
+    background: var(--code-bg);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12px;
+  }
+  .truncation {
+    color: var(--text-muted);
+    font-style: italic;
+    font-size: 12px;
+    margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="gem-logo">A</div>
+    <div>
+      <div class="gem-name">Agent Guide</div>
+      <div class="gem-sub">Par Yassine M · Gem Google</div>
+    </div>
+  </div>
+
+  <div class="message-user">
+    Tu es l'Agent Guide. Rédige un guide complet sur : Soirée de Gala caritative...
+  </div>
+
+  <div class="message-assistant">
+    <span class="balise first">=== 1. CHAMP TITRE (H1) ===</span>
+    <div class="title-h1">Soirée de Gala : organiser un événement caritatif inoubliable</div>
+
+    <span class="balise">=== 2. CHAMP CHAPÔ / INTRODUCTION ===</span>
+    <div class="chapeau">
+      Une soirée de gala marque les esprits par son raffinement et l'engagement qu'elle suscite. Lieu prestigieux, dîner d'exception et programme artistique millimétré : chaque détail compte pour transformer la rencontre en moment fort.
+    </div>
+
+    <span class="balise">=== 3. CHAMP CONTENU PRINCIPAL (LONG FORM) ===</span>
+
+    <div class="section-h2">## Le choix du lieu</div>
+    <div class="para">
+      Un gala mérite un lieu qui imprime la mémoire — château, hôtel particulier, salle haussmannienne...
+    </div>
+
+    <div class="section-h2">## La scénographie de la soirée</div>
+    <div class="para">
+      L'éclairage est central : bougies sur les tables, lustres en cristal, éclairage chaud sur les murs...
+    </div>
+
+    <div class="section-h2">## Le programme artistique</div>
+    <div class="para">
+      Quatuor à cordes pour le cocktail, pianiste-jazz pour le dîner, DJ pour la fin de soirée...
+    </div>
+
+    <span class="balise">=== 4. MODULE FAQ (Schema.org) ===</span>
+    <div class="faq-item"><span class="faq-q">Q :</span> Quel budget prévoir ?</div>
+    <div class="faq-item"><span class="faq-q">R :</span> Compter 300-500€/invité pour un gala haut de gamme...</div>
+
+    <span class="balise">=== 5. CHAMP META DESCRIPTION ===</span>
+    <div class="chapeau">
+      Organisez une soirée de gala caritative inoubliable : lieu, scénographie, programme artistique, budget.
+    </div>
+  </div>
+</body>
+</html>

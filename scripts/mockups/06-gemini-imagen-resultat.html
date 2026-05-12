@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Mockup — Gemini Imagen 4 variantes</title>
+<style>
+  :root {
+    --bg: #1a1d23;
+    --card-bg: #25282f;
+    --user-bg: #2d5f6c;
+    --text: #e8e8ea;
+    --text-muted: rgba(232, 232, 234, 0.55);
+    --accent: #8ab4f8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, system-ui, 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 32px;
+    width: 1000px;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .gem-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4285f4, #9b72cb 50%, #d96570);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+    font-size: 14px;
+  }
+  .gem-name { font-weight: 700; font-size: 15px; }
+  .gem-sub { font-size: 12px; color: var(--text-muted); }
+  .message-user {
+    background: var(--user-bg);
+    padding: 14px 18px;
+    border-radius: 18px 18px 4px 18px;
+    margin-left: auto;
+    max-width: 78%;
+    margin-bottom: 24px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.92);
+  }
+  .message-user .label { font-size: 11px; color: rgba(255,255,255,0.55); margin-bottom: 4px; }
+  .message-user code {
+    background: rgba(0,0,0,0.25);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+  }
+  .response-block {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 18px 18px 18px 4px;
+  }
+  .response-intro {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+  .images-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .image-card {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    aspect-ratio: 16/10;
+    background: linear-gradient(135deg, #3a3a3a, #1a1a1a);
+  }
+  .image-card svg {
+    width: 100%;
+    height: 100%;
+  }
+  .image-card .label {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.3px;
+  }
+  .image-card.selected { box-shadow: 0 0 0 3px #8ab4f8; }
+  .image-card.selected .label { background: #8ab4f8; color: #1a1d23; }
+  .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .action-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text);
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .action-btn.primary {
+    background: var(--accent);
+    color: #1a1d23;
+    border-color: transparent;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="gem-logo">G</div>
+    <div>
+      <div class="gem-name">Gemini</div>
+      <div class="gem-sub">Imagen 3 · 4 variantes générées</div>
+    </div>
+  </div>
+
+  <div class="message-user">
+    <div class="label">Ton prompt collé</div>
+    <strong>SUBJECT:</strong> Two guests, mid-30s, seen from behind, lifting champagne flutes during a toast in a Parisian hôtel particulier. <strong>SETTING:</strong> Reception room with "moulures", "parquet ancien", "lustres en cristal"... <code>Shot on 35mm f/2.8, Kodak Portra 800. Visible film grain.</code>
+  </div>
+
+  <div class="response-block">
+    <div class="response-intro">Voici 4 variantes de ta photo. Clique sur celle que tu veux télécharger.</div>
+
+    <div class="images-grid">
+      <!-- Variant 1 — selected -->
+      <div class="image-card selected">
+        <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="warm1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#6b4830"/>
+              <stop offset="60%" stop-color="#8a6240"/>
+              <stop offset="100%" stop-color="#2c1f15"/>
+            </linearGradient>
+            <radialGradient id="lustre" cx="0.7" cy="0.2" r="0.4">
+              <stop offset="0%" stop-color="#f4d4a0" stop-opacity="0.85"/>
+              <stop offset="100%" stop-color="#f4d4a0" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect width="320" height="200" fill="url(#warm1)"/>
+          <rect width="320" height="200" fill="url(#lustre)"/>
+          <!-- Silhouettes -->
+          <ellipse cx="105" cy="135" rx="32" ry="55" fill="#3a2818" opacity="0.92"/>
+          <ellipse cx="180" cy="130" rx="34" ry="58" fill="#251710" opacity="0.94"/>
+          <!-- Champagne flutes -->
+          <line x1="115" y1="100" x2="118" y2="75" stroke="#e8d5a8" stroke-width="1.5"/>
+          <ellipse cx="118" cy="73" rx="5" ry="9" fill="#f5e4b8" opacity="0.85"/>
+          <line x1="170" y1="98" x2="173" y2="73" stroke="#e8d5a8" stroke-width="1.5"/>
+          <ellipse cx="173" cy="71" rx="5" ry="9" fill="#f5e4b8" opacity="0.85"/>
+          <!-- Bokeh background -->
+          <circle cx="240" cy="60" r="8" fill="#f4d4a0" opacity="0.35"/>
+          <circle cx="270" cy="80" r="6" fill="#f4d4a0" opacity="0.28"/>
+          <circle cx="50" cy="50" r="7" fill="#f4d4a0" opacity="0.32"/>
+        </svg>
+        <span class="label">1 · Sélectionnée</span>
+      </div>
+
+      <!-- Variant 2 -->
+      <div class="image-card">
+        <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="warm2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#7a5538"/>
+              <stop offset="100%" stop-color="#3a2818"/>
+            </linearGradient>
+          </defs>
+          <rect width="320" height="200" fill="url(#warm2)"/>
+          <!-- Single profile silhouette + table edge -->
+          <rect x="0" y="155" width="320" height="45" fill="#1f1410" opacity="0.85"/>
+          <ellipse cx="220" cy="100" rx="40" ry="68" fill="#1a1006" opacity="0.95"/>
+          <!-- Flute close-up -->
+          <line x1="140" y1="160" x2="142" y2="105" stroke="#f0dcae" stroke-width="2"/>
+          <ellipse cx="142" cy="100" rx="7" ry="13" fill="#f5e4b8" opacity="0.9"/>
+          <ellipse cx="142" cy="160" rx="8" ry="3" fill="#c4a878"/>
+          <!-- Linen napkin -->
+          <rect x="60" y="160" width="50" height="20" fill="#e8e1d2" opacity="0.75"/>
+          <!-- Background bokeh -->
+          <circle cx="55" cy="50" r="9" fill="#f4d4a0" opacity="0.3"/>
+          <circle cx="100" cy="40" r="5" fill="#f4d4a0" opacity="0.25"/>
+        </svg>
+        <span class="label">2</span>
+      </div>
+
+      <!-- Variant 3 -->
+      <div class="image-card">
+        <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="warm3" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#2a1d12"/>
+              <stop offset="50%" stop-color="#5e4128"/>
+              <stop offset="100%" stop-color="#3a2818"/>
+            </linearGradient>
+          </defs>
+          <rect width="320" height="200" fill="url(#warm3)"/>
+          <!-- Wider scene — multiple silhouettes -->
+          <ellipse cx="80" cy="140" rx="22" ry="42" fill="#2a1810" opacity="0.85"/>
+          <ellipse cx="135" cy="135" rx="24" ry="46" fill="#1f1006" opacity="0.92"/>
+          <ellipse cx="195" cy="138" rx="22" ry="43" fill="#251710" opacity="0.88"/>
+          <ellipse cx="250" cy="142" rx="20" ry="40" fill="#2a1810" opacity="0.78"/>
+          <!-- Ceiling moulure suggestion -->
+          <path d="M0 25 Q160 18 320 25" stroke="#8a6442" stroke-width="2" fill="none" opacity="0.45"/>
+          <path d="M0 40 Q160 33 320 40" stroke="#8a6442" stroke-width="1" fill="none" opacity="0.3"/>
+          <!-- Chandelier hint -->
+          <circle cx="160" cy="55" r="14" fill="#f4d4a0" opacity="0.4"/>
+          <circle cx="160" cy="55" r="6" fill="#fff3c4" opacity="0.6"/>
+        </svg>
+        <span class="label">3</span>
+      </div>
+
+      <!-- Variant 4 -->
+      <div class="image-card">
+        <svg viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="warm4" x1="0" y1="0" x2="0.7" y2="1">
+              <stop offset="0%" stop-color="#5a3d24"/>
+              <stop offset="100%" stop-color="#1a0e08"/>
+            </linearGradient>
+          </defs>
+          <rect width="320" height="200" fill="url(#warm4)"/>
+          <!-- Three-quarter angle, 2 figures slightly different framing -->
+          <ellipse cx="130" cy="120" rx="38" ry="62" fill="#251710" opacity="0.94"/>
+          <ellipse cx="200" cy="115" rx="36" ry="65" fill="#2a1810" opacity="0.92"/>
+          <!-- Flutes raised higher -->
+          <line x1="135" y1="78" x2="138" y2="50" stroke="#f0dcae" stroke-width="1.5"/>
+          <ellipse cx="138" cy="48" rx="6" ry="11" fill="#fef0c8" opacity="0.92"/>
+          <line x1="195" y1="80" x2="198" y2="52" stroke="#f0dcae" stroke-width="1.5"/>
+          <ellipse cx="198" cy="50" rx="6" ry="11" fill="#fef0c8" opacity="0.92"/>
+          <!-- Floral arrangement bokeh foreground -->
+          <circle cx="50" cy="170" r="14" fill="#a64a55" opacity="0.6"/>
+          <circle cx="65" cy="180" r="10" fill="#7a3850" opacity="0.55"/>
+          <circle cx="40" cy="178" r="8" fill="#4a5a3a" opacity="0.5"/>
+          <!-- Tour Eiffel suggestion ban — staying inside -->
+          <circle cx="290" cy="35" r="6" fill="#f4d4a0" opacity="0.3"/>
+        </svg>
+        <span class="label">4</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <div class="action-btn primary">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Télécharger
+      </div>
+      <div class="action-btn">Régénérer</div>
+      <div class="action-btn">Modifier</div>
+    </div>
+  </div>
+</body>
+</html>

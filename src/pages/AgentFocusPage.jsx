@@ -161,12 +161,21 @@ function MissionCockpit({ prompt, agent, index, sharedSubject, onSubjectChange }
 
         try {
             const response = await fetch(`/api/trends?topic=${encodeURIComponent(subject || 'tendance')}`);
-            if (!response.ok) throw new Error('Erreur réseau');
             const data = await response.json();
-            setResults(data.data); // Assuming backend returns { data: [...] }
+            if (!response.ok) {
+                setError({
+                    message: data?.error || 'Une erreur est survenue. Réessaie ou contacte l\'équipe Tech.',
+                    retryable: response.status === 503 || response.status === 429,
+                });
+                return;
+            }
+            setResults(data.data); // Backend returns { data: [...] }
         } catch (err) {
-            setError("Impossible de récupérer les tendances. Vérifiez que le back-end est lancé.");
             console.error(err);
+            setError({
+                message: 'Connexion au serveur impossible. Vérifie ta connexion internet et réessaie.',
+                retryable: true,
+            });
         } finally {
             setIsLoading(false);
         }
@@ -189,15 +198,25 @@ function MissionCockpit({ prompt, agent, index, sharedSubject, onSubjectChange }
                 })
             });
             const data = await response.json();
-            if (!response.ok) throw new Error(data?.error || `HTTP ${response.status}`);
+            if (!response.ok) {
+                setError({
+                    message: data?.error || 'Une erreur est survenue. Réessaie ou contacte l\'équipe Tech.',
+                    retryable: data?.retryable === true || response.status === 503 || response.status === 429,
+                });
+                return;
+            }
             if (!Array.isArray(data?.prompts) || data.prompts.length === 0) {
-                throw new Error('Aucun prompt généré');
+                setError({ message: 'Aucun prompt n\'a été généré. Réessaie.', retryable: true });
+                return;
             }
             setResults(data.prompts);
             setLaunchUnlocked(true);
         } catch (err) {
-            setError(`Erreur génération : ${err.message}`);
             console.error(err);
+            setError({
+                message: 'Connexion au serveur impossible. Vérifie ta connexion internet et réessaie.',
+                retryable: true,
+            });
         } finally {
             setIsLoading(false);
         }
@@ -440,11 +459,41 @@ function MissionCockpit({ prompt, agent, index, sharedSubject, onSubjectChange }
                     )}
 
                     {/* Error Display */}
-                    {(isApiMode || isPhotoMode) && error && (
-                        <div className="mt-6 p-4 bg-red-50 text-red-600 rounded-xl text-center font-medium">
-                            {error}
-                        </div>
-                    )}
+                    {(isApiMode || isPhotoMode) && error && (() => {
+                        // error can be a string (legacy: trends API) or an object {message, retryable}
+                        const errMsg = typeof error === 'string' ? error : error.message;
+                        const isRetryable = typeof error === 'object' && error.retryable;
+                        return (
+                            <div className="mt-6 bg-red-50 border border-red-100 rounded-xl p-5">
+                                <div className="flex items-start gap-3">
+                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 font-bold text-sm">!</div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-semibold text-red-700 text-sm mb-2">
+                                            {errMsg}
+                                        </p>
+                                        {isRetryable && isPhotoMode && (
+                                            <button
+                                                onClick={handleGeneratePhotoPrompts}
+                                                disabled={isLoading}
+                                                className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors"
+                                            >
+                                                {isLoading ? 'Nouvelle tentative...' : 'Réessayer'}
+                                            </button>
+                                        )}
+                                        {isRetryable && isApiMode && (
+                                            <button
+                                                onClick={handleSearch}
+                                                disabled={isLoading}
+                                                className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors"
+                                            >
+                                                {isLoading ? 'Nouvelle tentative...' : 'Réessayer'}
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })()}
 
                     {/* Advanced: Raw Prompt View (Standard Mode Only) */}
                     <AnimatePresence>

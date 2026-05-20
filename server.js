@@ -210,14 +210,28 @@ Génère les prompts photo au format JSON demandé.`
 
     let response
     let lastErrText = ''
-    for (let attempt = 1; attempt <= 3; attempt++) {
+    let lastStatus = 0
+    for (let attempt = 1; attempt <= 5; attempt++) {
       response = await callGemini()
       if (response.ok) break
       lastErrText = await response.text()
-      if (response.status !== 503 && response.status !== 429) throw new Error(`Gemini ${response.status}: ${lastErrText}`)
-      if (attempt < 3) await new Promise(r => setTimeout(r, attempt * 1500))
+      lastStatus = response.status
+      if (response.status !== 503 && response.status !== 429) {
+        return res.status(502).json({
+          error: 'Une erreur inattendue côté Gemini est survenue. Réessaie ou contacte l\'équipe Tech.',
+          code: 'GEMINI_ERROR',
+          status: response.status,
+        })
+      }
+      if (attempt < 5) await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000))
     }
-    if (!response.ok) throw new Error(`Gemini ${response.status} after 3 retries: ${lastErrText}`)
+    if (!response.ok) {
+      return res.status(503).json({
+        error: 'Gemini est temporairement surchargé. Patiente une minute et réessaie.',
+        code: 'GEMINI_OVERLOADED',
+        retryable: true,
+      })
+    }
 
     const data = await response.json()
     const content = data?.candidates?.[0]?.content?.parts?.[0]?.text

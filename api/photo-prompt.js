@@ -222,21 +222,33 @@ Output strictly the JSON format specified in the system prompt.`
       })
     })
 
+    // 5 attempts with exponential backoff (2s, 4s, 8s, 16s) — total ~30s max.
+    // Gemini 503/429 spikes typically clear within 10-20s.
     let response
     let lastErrText = ''
-    for (let attempt = 1; attempt <= 3; attempt++) {
+    let lastStatus = 0
+    for (let attempt = 1; attempt <= 5; attempt++) {
       response = await callGemini()
       if (response.ok) break
       lastErrText = await response.text()
+      lastStatus = response.status
       if (response.status !== 503 && response.status !== 429) {
         console.error('Gemini API non-retryable error:', response.status, lastErrText)
-        return res.status(502).json({ error: `Gemini API ${response.status}`, details: lastErrText })
+        return res.status(502).json({
+          error: 'Une erreur inattendue côté Gemini est survenue. Réessaie ou contacte l\'équipe Tech.',
+          code: 'GEMINI_ERROR',
+          status: response.status,
+        })
       }
-      if (attempt < 3) await new Promise(r => setTimeout(r, attempt * 1500))
+      if (attempt < 5) await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000))
     }
     if (!response.ok) {
-      console.error('Gemini API still failing after retries:', response.status, lastErrText)
-      return res.status(502).json({ error: `Gemini API ${response.status} (after 3 retries)`, details: lastErrText })
+      console.error('Gemini API overloaded after 5 retries:', lastStatus, lastErrText)
+      return res.status(503).json({
+        error: 'Gemini est temporairement surchargé. Patiente une minute et réessaie.',
+        code: 'GEMINI_OVERLOADED',
+        retryable: true,
+      })
     }
 
     const data = await response.json()
